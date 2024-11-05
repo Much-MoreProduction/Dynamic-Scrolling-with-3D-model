@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOUR WEBSITE</title>
+  
+  <style>
+    body {
+      margin: 0;
+      overflow-y: scroll;
+      height: 200vh;
+    }
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- Include Three.js and GLTFLoader from a CDN without modules -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+  
+  <script>
+    const container = document.getElementById("canvas-container");
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    scene.background = new THREE.Color(0xeeeeee);
+    container.appendChild(renderer.domElement);
+
+    camera.position.z = 5;
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+    directionalLight.position.set(0, 5, 10);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight)
+    
+    //const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light, full intensity
+    //directionalLight.position.set(5, 10, 7.5); // Adjust position as needed
+    //directionalLight.castShadow = true; // Enable shadows
+    //scene.add(directionalLight);
+
+    const loader = new THREE.GLTFLoader();
+    let model;
+    loader.load(
+      '/models/Mini3Pro.glb', // Replace with the path to your GLB file
+      (gltf) => {
+        model = gltf.scene;
+
+        model.scale.set(15, 15, 15)
+
+        scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading the model:', error);
+      }
+    );
+
+    window.addEventListener("scroll", () => {
+      if (model) {
+        const scrollY = window.scrollY;
+        model.rotation.y = scrollY * 0.005;
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+    </script>
+</body>
+</html>
